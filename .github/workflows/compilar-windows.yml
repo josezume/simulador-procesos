@@ -4,9 +4,9 @@
 # Cuándo corre:
 #   - Cada vez que alguien sube cambios a la rama main (o abre un Pull Request):
 #     el ZIP queda en la pestaña "Actions" → la ejecución → "Artifacts".
-#   - Cuando se crea una etiqueta de versión (p. ej. "v1.0"), ya sea desde
-#     Releases → "Draft a new release" o con git: se crea (o completa) el
-#     Release de esa versión con el ZIP adjunto y un enlace de descarga fijo.
+#   - Cuando se publica un Release (Releases → "Draft a new release" → "v1.0"
+#     → "Publish release"): el ZIP se adjunta al Release, con un enlace de
+#     descarga fijo que cualquiera puede abrir sin cuenta de GitHub.
 #   - Manualmente, desde Actions → "Compilar ejecutable de Windows" → "Run workflow".
 
 name: Compilar ejecutable de Windows
@@ -14,8 +14,9 @@ name: Compilar ejecutable de Windows
 on:
   push:
     branches: [ main ]
-    tags: [ 'v*' ]
   pull_request:
+  release:
+    types: [ published ]
   workflow_dispatch:
 
 permissions:
@@ -92,8 +93,8 @@ jobs:
           path: SimuladorProcesos/
           retention-days: 90
 
-      - name: Publicar el ZIP en el Release de la versión
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Adjuntar el ZIP al Release
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
           files: SimuladorProcesos-windows.zip

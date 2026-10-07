@@ -73,15 +73,18 @@ une a `main` con *Merge pull request*.
 GitHub genera el `.exe` (con todas las DLL de Qt) automáticamente:
 
 - **Con cada push a `main`:** pestaña *Actions* → la ejecución más reciente →
-  sección *Artifacts* → `SimuladorProcesos-windows`.
+  sección *Artifacts* → `SimuladorProcesos-windows`. Sirve para probar entre
+  ustedes; para descargarlo hay que tener sesión iniciada en GitHub.
 - **Para una entrega:** pestaña *Releases* → *Draft a new release* → en
-  *Choose a tag* escribir `v1.0` (o la versión que toque) → *Publish release*.
-  Unos 5–10 minutos después aparece `SimuladorProcesos-windows.zip` adjunto al
-  Release.
+  *Choose a tag* escribir `v1.0` (o la versión que toque) y elegir
+  *Create new tag* → *Publish release*. Unos 3–5 minutos después aparece
+  `SimuladorProcesos-windows.zip` adjunto al Release.
 
-Si el repositorio es **privado**, el ingeniero no puede ver Actions ni Releases.
-En ese caso, descarguen el ZIP y envíenselo (correo, Drive, Teams), o agréguenlo
-como colaborador.
+El enlace para el ingeniero es siempre el mismo y lleva a la última versión
+publicada: <https://github.com/josezume/simulador-procesos/releases/latest>.
+Como el repositorio es público, lo puede descargar sin cuenta de GitHub. (Si
+algún día lo hacen privado, tendrán que enviarle el ZIP por correo o Drive, o
+agregarlo como colaborador.)
 
 También se puede generar en la propia computadora con
 `scripts\empaquetar-windows.bat` (ver el README).
