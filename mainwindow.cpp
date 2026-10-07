@@ -527,7 +527,9 @@ QWidget* MainWindow::construirPestanaMemoria() {
     m_metodoCombo->addItem(QStringLiteral("2. Best Fit"));
     m_metodoCombo->addItem(QStringLiteral("3. Worst Fit"));
     m_metodoCombo->setCurrentIndex(static_cast<int>(m_metodoAjuste));
-    connect(m_metodoCombo, &QComboBox::currentIndexChanged, this, [this](int idx) {
+    // QOverload<int> hace que compile igual en Qt 5 (donde la señal tiene dos
+    // versiones: int y QString) y en Qt 6.
+    connect(m_metodoCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int idx) {
         m_metodoAjuste = static_cast<MetodoAjuste>(idx);
         registrarEvento(QString("Metodo de ajuste cambiado a %1").arg(metodoATexto(m_metodoAjuste)),
                          TipoEvento::Sistema);
