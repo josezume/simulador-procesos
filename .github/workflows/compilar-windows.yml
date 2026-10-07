@@ -1,0 +1,92 @@
+# Compila el simulador para Windows en los servidores de GitHub y lo empaqueta
+# con todas las DLL de Qt, para que se pueda abrir sin tener Qt instalado.
+#
+# Cuándo corre:
+#   - Cada vez que alguien sube cambios a la rama main (o abre un Pull Request):
+#     el ZIP queda en la pestaña "Actions" → la ejecución → "Artifacts".
+#   - Cuando se publica un Release en GitHub (p. ej. "v1.0"): el ZIP se adjunta
+#     automáticamente al Release, con un enlace de descarga fijo.
+#   - Manualmente, desde Actions → "Compilar ejecutable de Windows" → "Run workflow".
+
+name: Compilar ejecutable de Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # necesario para adjuntar el ZIP a un Release
+
+jobs:
+  windows:
+    name: Windows (Qt 6 + MinGW)
+    runs-on: windows-latest
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Qt 6 y MinGW
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_mingw'
+          tools: 'tools_mingw1310'
+          cache: true
+
+      - name: Agregar el compilador MinGW al PATH
+        shell: pwsh
+        run: |
+          $mingw = Get-ChildItem -Path $env:IQTA_TOOLS -Directory -Filter 'mingw*' | Select-Object -First 1
+          if (-not $mingw) { throw "No se encontró MinGW dentro de $env:IQTA_TOOLS" }
+          "$($mingw.FullName)\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          Write-Host "MinGW: $($mingw.FullName)"
+
+      - name: Compilar (Release)
+        shell: cmd
+        run: |
+          mkdir build-release
+          cd build-release
+          qmake ..\simulador-procesos.pro CONFIG+=release CONFIG-=debug_and_release
+          if errorlevel 1 exit /b 1
+          mingw32-make -j4
+          if errorlevel 1 exit /b 1
+
+      - name: Empaquetar con windeployqt
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path build-release -Recurse -Filter 'simulador-procesos.exe' | Select-Object -First 1
+          if (-not $exe) { throw "No se generó simulador-procesos.exe" }
+          New-Item -ItemType Directory -Force -Path SimuladorProcesos | Out-Null
+          Copy-Item $exe.FullName SimuladorProcesos\
+          windeployqt --release --no-translations --no-system-d3d-compiler --no-opengl-sw --compiler-runtime SimuladorProcesos\simulador-procesos.exe
+          if ($LASTEXITCODE -ne 0) { throw "windeployqt falló" }
+          @"
+          Simulador de Procesos
+          =====================
+          Para abrirlo: doble clic en simulador-procesos.exe
+          No borres ni muevas las DLL ni las carpetas que están junto al .exe:
+          son las bibliotecas de Qt que el programa necesita.
+          Versión: $env:GITHUB_REF_NAME ($($env:GITHUB_SHA.Substring(0,7)))
+          "@ | Out-File -FilePath SimuladorProcesos\LEEME.txt -Encoding utf8
+          Compress-Archive -Path SimuladorProcesos -DestinationPath SimuladorProcesos-windows.zip
+          Get-ChildItem SimuladorProcesos
+
+      - name: Guardar el ZIP como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimuladorProcesos-windows
+          path: SimuladorProcesos/
+          retention-days: 90
+
+      - name: Adjuntar el ZIP al Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: SimuladorProcesos-windows.zip

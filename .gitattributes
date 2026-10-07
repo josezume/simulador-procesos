@@ -1,0 +1,18 @@
+# Normaliza los saltos de línea: en el repositorio todo se guarda con LF,
+# y Git los convierte según el sistema de cada compañero.
+* text=auto
+
+*.cpp text
+*.h   text
+*.pro text
+*.md  text
+*.yml text
+
+# Los .bat de Windows necesitan CRLF para ejecutarse bien.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.png binary
+*.ico binary
+*.zip binary
+*.exe binary

@@ -1,0 +1,46 @@
+# --- Qt Creator: configuración personal de cada quien (rutas de su compu) ---
+*.pro.user
+*.pro.user.*
+.qtcreator/
+CMakeLists.txt.user*
+*.autosave
+
+# --- Carpetas de compilación ---
+build/
+build-*/
+build-release/
+debug/
+release/
+out/
+SimuladorProcesos/
+SimuladorProcesos-*.zip
+
+# --- Archivos generados por qmake / moc / compilador ---
+Makefile
+Makefile.*
+.qmake.stash
+.qmake.cache
+moc_*.cpp
+moc_*.h
+moc_predefs.h
+qrc_*.cpp
+ui_*.h
+object_script.*
+*.o
+*.obj
+*.exe
+*.dll
+*.a
+*.lib
+*.pdb
+*.ilk
+*.exp
+
+# --- Sistema operativo / editores ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*~
+*.swp
