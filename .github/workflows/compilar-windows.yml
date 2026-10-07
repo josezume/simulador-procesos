@@ -4,8 +4,9 @@
 # Cuándo corre:
 #   - Cada vez que alguien sube cambios a la rama main (o abre un Pull Request):
 #     el ZIP queda en la pestaña "Actions" → la ejecución → "Artifacts".
-#   - Cuando se publica un Release en GitHub (p. ej. "v1.0"): el ZIP se adjunta
-#     automáticamente al Release, con un enlace de descarga fijo.
+#   - Cuando se crea una etiqueta de versión (p. ej. "v1.0"), ya sea desde
+#     Releases → "Draft a new release" o con git: se crea (o completa) el
+#     Release de esa versión con el ZIP adjunto y un enlace de descarga fijo.
 #   - Manualmente, desde Actions → "Compilar ejecutable de Windows" → "Run workflow".
 
 name: Compilar ejecutable de Windows
@@ -13,9 +14,8 @@ name: Compilar ejecutable de Windows
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   pull_request:
-  release:
-    types: [ published ]
   workflow_dispatch:
 
 permissions:
@@ -92,8 +92,17 @@ jobs:
           path: SimuladorProcesos/
           retention-days: 90
 
-      - name: Adjuntar el ZIP al Release
-        if: github.event_name == 'release'
+      - name: Publicar el ZIP en el Release de la versión
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: SimuladorProcesos-windows.zip
+          append_body: true
+          body: |
+            ### Descargar y abrir
+            1. Descarga **SimuladorProcesos-windows.zip** (abajo, en *Assets*).
+            2. Descomprímelo (clic derecho → *Extraer todo*).
+            3. Abre `simulador-procesos.exe`. No necesita Qt instalado.
+
+            Si Windows muestra "Windows protegió su PC", elige *Más información* → *Ejecutar de todas formas*
+            (aparece porque el programa no está firmado digitalmente).
