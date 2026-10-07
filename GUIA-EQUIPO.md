@@ -1,6 +1,6 @@
 # Guía para trabajar el proyecto en equipo
 
-El código vive en GitHub: <https://github.com/USUARIO_GITHUB/simulador-procesos>.
+El código vive en GitHub: <https://github.com/josezume/simulador-procesos>.
 Ahí está siempre la versión más reciente, así que ya no hace falta pasarse ZIPs
 por chat.
 

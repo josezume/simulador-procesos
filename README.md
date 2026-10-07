@@ -1,5 +1,7 @@
 # Simulador de Procesos — Proyecto 1 (Qt/C++)
 
+[![Compilar ejecutable de Windows](https://github.com/josezume/simulador-procesos/actions/workflows/compilar-windows.yml/badge.svg)](https://github.com/josezume/simulador-procesos/actions/workflows/compilar-windows.yml)
+
 Simulador de gestión de procesos: PCB, estados (Nuevo, Listo, Ejecutando,
 Bloqueado, Terminado), colas, transiciones y un panel de rendimiento al
 estilo del administrador de tareas. C++17, compila con Qt 6 y con Qt 5.15.
