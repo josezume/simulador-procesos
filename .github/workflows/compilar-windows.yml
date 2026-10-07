@@ -49,14 +49,21 @@ jobs:
           Write-Host "MinGW: $($mingw.FullName)"
 
       - name: Compilar (Release)
-        shell: cmd
+        shell: pwsh
         run: |
-          mkdir build-release
-          cd build-release
-          qmake ..\simulador-procesos.pro CONFIG+=release CONFIG-=debug_and_release
-          if errorlevel 1 exit /b 1
-          mingw32-make -j4
-          if errorlevel 1 exit /b 1
+          New-Item -ItemType Directory -Force -Path build-release | Out-Null
+          Set-Location build-release
+          qmake ..\simulador-procesos.pro CONFIG+=release CONFIG-=debug_and_release 2>&1 | Tee-Object -FilePath qmake.log
+          if ($LASTEXITCODE -ne 0) { Write-Host "::error::qmake falló (ver el registro de este paso)"; exit 1 }
+          mingw32-make -j4 2>&1 | Tee-Object -FilePath make.log
+          if ($LASTEXITCODE -ne 0) {
+            # Muestra los errores del compilador como anotaciones, para verlos
+            # directamente en el resumen de la ejecución en GitHub.
+            Select-String -Path make.log -Pattern 'error' -SimpleMatch |
+              Select-Object -First 15 |
+              ForEach-Object { Write-Host "::error::$($_.Line)" }
+            exit 1
+          }
 
       - name: Empaquetar con windeployqt
         shell: pwsh
